@@ -54,6 +54,13 @@ class StudentController {
     }
     // TODO (Reto 1 - Bulk create): validar que request.body sea un arreglo y delegar en studentService.bulkCreate
     async bulkCreate(request, response) {
+        try {
+            const student = await student_service_1.studentService.bulkCreate(request.body);
+            response.json(students);
+        }
+        catch (error) {
+            response.json(error);
+        }
         response.status(501).json({ message: "Not implemented" });
     }
     // TODO (Reto 2 - Search): tomar los query params y delegar en studentService.search
@@ -62,7 +69,21 @@ class StudentController {
     }
     // TODO (Reto 3 - Delete): validar el email y delegar en studentService.deleteStudent (404/mensaje si no existe)
     async deleteStudent(request, response) {
-        response.status(501).json({ message: "Not implemented" });
+        try {
+            const email = request.params.email;
+            if (typeof email !== "string") {
+                response.status(400).json();
+                return;
+            }
+            const student = await student_service_1.studentService.deleteStudent(email);
+            if (student === null) {
+                response.status(404).json();
+            }
+            response.json(student);
+        }
+        catch (error) {
+            response.json(error);
+        }
     }
 }
 exports.studentController = new StudentController();

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { StudentDocument, StudentInput } from "../models/student.model";
-import { studentService } from "../services/student.service";
+import { StudentDocument, StudentInput, BulkCreateResult } from "../models/student.model";
+import { studentService } from '../services/student.service';
 
 class StudentController{
 
@@ -56,6 +56,16 @@ class StudentController{
 
     // TODO (Reto 1 - Bulk create): validar que request.body sea un arreglo y delegar en studentService.bulkCreate
     async bulkCreate(request: Request, response: Response){
+        try{
+            const student: StudentDocument | null = await studentService.bulkCreate(request.body as StudentInput)
+            response.json(students);
+        }catch(error){
+            response.json(error)
+
+        }
+        
+        
+
         response.status(501).json({ message: "Not implemented" });
     }
 
@@ -66,7 +76,22 @@ class StudentController{
 
     // TODO (Reto 3 - Delete): validar el email y delegar en studentService.deleteStudent (404/mensaje si no existe)
     async deleteStudent(request: Request, response: Response){
-        response.status(501).json({ message: "Not implemented" });
+        try{
+            const email = request.params.email;
+            if (typeof email !== "string") {
+                response.status(400).json();
+                return;
+            }
+            const student: StudentDocument | null = await studentService.deleteStudent(email);
+            if(student === null){
+                response.status(404).json();
+            }
+            response.json(student);
+            
+        }
+        catch(error){
+            response.json(error);
+        }
     }
 }
 

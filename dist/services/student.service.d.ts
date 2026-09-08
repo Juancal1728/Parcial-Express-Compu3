@@ -1,11 +1,12 @@
 import { BulkCreateResult, StudentDocument, StudentInput, StudentSearchQuery } from "../models/student.model";
+import mongoose from "mongoose";
 declare class StudentService {
     create(studentData: StudentDocument): Promise<StudentDocument | {
         message: string;
     }>;
     findAll(): Promise<StudentDocument[]>;
-    findByEmail(email: string): Promise<(import("mongoose").Document<unknown, {}, StudentDocument, {}, import("mongoose").DefaultSchemaOptions> & StudentDocument & Required<{
-        _id: import("mongoose").Types.ObjectId;
+    findByEmail(email: string): Promise<(mongoose.Document<unknown, {}, StudentDocument, {}, mongoose.DefaultSchemaOptions> & StudentDocument & Required<{
+        _id: mongoose.Types.ObjectId;
     }> & {
         __v: number;
     } & {

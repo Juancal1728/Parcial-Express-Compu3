@@ -1,4 +1,7 @@
 import { BulkCreateResult, StudentDocument, StudentInput, StudentModel, StudentSearchQuery } from "../models/student.model";
+import { BulkCreateResult } from '../../../dist/models/student.model';
+import { StudentDocument } from '../../dist/models/student.model';
+import mongoose from "mongoose";
 
 class StudentService {
 
@@ -49,20 +52,35 @@ class StudentService {
     //   - si no existe, crearlo y agregarlo a "created"
     // Un solo estudiante inválido NO debe tumbar el resto del lote: atrapa el error por estudiante, no solo por el arreglo completo.
     async bulkCreate(studentsData: StudentInput[]): Promise<BulkCreateResult>{
-        throw new Error("Not implemented");
-    }
+        const result: BulkCreateResult = {created:[], skipped: []};        
+                    
+                }
+                
 
     // TODO (Reto 2 - Search): implementar.
     // Construye un filtro de Mongoose SOLO con los criterios presentes en el query (los ausentes no deben filtrar nada).
     // isActive: "true"/"false" -> boolean | minAge/maxAge -> rango con $gte/$lte sobre "age" | name -> coincidencia parcial case-insensitive con $regex
     async search(query: StudentSearchQuery): Promise<StudentDocument[]>{
+        try{
+            const{isActive, minAge, maxAge, name} = query;
+            const filter: mongoose.QueryFilter<StudentDocument></StudentDocument>
+        }
+
+
         throw new Error("Not implemented");
     }
 
     // TODO (Reto 3 - Delete): implementar.
     // Debe eliminar el estudiante con ese email y devolver el documento eliminado, o null si no existía.
     async deleteStudent(email: string): Promise<StudentDocument | null>{
-        throw new Error("Not implemented");
+        try{
+            const deletedStudent: StudentDocument |null = await StudentModel.findOneAndDelete({email});
+            return deletedStudent
+        }catch(error){
+            console.log(this.handleError(error));
+            throw error;
+        }
+    
     }
 
     handleError(error: any){
