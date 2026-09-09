@@ -52,7 +52,21 @@ class StudentService {
     //   - si no existe, crearlo y agregarlo a "created"
     // Un solo estudiante inválido NO debe tumbar el resto del lote: atrapa el error por estudiante, no solo por el arreglo completo.
     async bulkCreate(studentsData) {
-        const result = { created: [], skipped: [] };
+        const created = [];
+        const skipped = [];
+        for (const student of studentsData) {
+            try {
+                if (await this.findByEmail(student.email)) {
+                    skipped.push({ email: student.email, reason: "Already exists" });
+                    continue;
+                }
+                created.push(await student_model_1.StudentModel.create(student));
+            }
+            catch {
+                skipped.push({ email: student.email, reason: "Error" });
+            }
+        }
+        return { created, skipped };
     }
     // TODO (Reto 2 - Search): implementar.
     // Construye un filtro de Mongoose SOLO con los criterios presentes en el query (los ausentes no deben filtrar nada).
@@ -60,12 +74,29 @@ class StudentService {
     async search(query) {
         try {
             const { isActive, minAge, maxAge, name } = query;
-            const filter;
-            /StudentDocument>;
+            const filter = {};
+            if (isActive) {
+                filter.isActive = isActive === "true";
+            }
+            if (minAge || maxAge) {
+                filter.age = {};
+                if (minAge) {
+                    filter.age.$gte = parseInt(minAge);
+                }
+                if (maxAge) {
+                    filter.age.$lte = parseInt(maxAge);
+                }
+            }
+            if (name) {
+                filter.name = { $regex: name, $options: "i" };
+            }
+            const students = await student_model_1.StudentModel.find(filter);
+            return students;
         }
-        finally {
+        catch (error) {
+            console.log(this.handleError(error));
+            throw error;
         }
-        throw new Error("Not implemented");
     }
     // TODO (Reto 3 - Delete): implementar.
     // Debe eliminar el estudiante con ese email y devolver el documento eliminado, o null si no existía.

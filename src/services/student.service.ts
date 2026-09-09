@@ -1,6 +1,4 @@
 import { BulkCreateResult, StudentDocument, StudentInput, StudentModel, StudentSearchQuery } from "../models/student.model";
-import { BulkCreateResult } from '../../../dist/models/student.model';
-import { StudentDocument } from '../../dist/models/student.model';
 import mongoose from "mongoose";
 
 class StudentService {
@@ -52,10 +50,23 @@ class StudentService {
     //   - si no existe, crearlo y agregarlo a "created"
     // Un solo estudiante inválido NO debe tumbar el resto del lote: atrapa el error por estudiante, no solo por el arreglo completo.
     async bulkCreate(studentsData: StudentInput[]): Promise<BulkCreateResult>{
-        const result: BulkCreateResult = {created:[], skipped: []};        
-                    
+        const created: StudentDocument[] = [];
+        const skipped: { email: string; reason: string }[] = [];
+
+        for (const student of studentsData) {
+            try {
+                if (await this.findByEmail(student.email)) {
+                    skipped.push({ email: student.email, reason: "Already exists" });
+                    continue;
                 }
-                
+                created.push(await StudentModel.create(student));
+            } catch {
+                skipped.push({ email: student.email, reason: "Error" });
+            }
+        }
+
+        return { created, skipped };
+    }
 
     // TODO (Reto 2 - Search): implementar.
     // Construye un filtro de Mongoose SOLO con los criterios presentes en el query (los ausentes no deben filtrar nada).
@@ -63,11 +74,32 @@ class StudentService {
     async search(query: StudentSearchQuery): Promise<StudentDocument[]>{
         try{
             const{isActive, minAge, maxAge, name} = query;
-            const filter: mongoose.QueryFilter<StudentDocument></StudentDocument>
+            const filter: mongoose.QueryFilter<StudentDocument> = {};
+            if(isActive){
+                filter.isActive = isActive === "true";
+            }
+            if(minAge || maxAge){
+                filter.age = {};
+                if(minAge){
+                    filter.age.$gte = parseInt(minAge);
+                }
+                if(maxAge){
+                    filter.age.$lte = parseInt(maxAge);
+                }
+            }
+            if(name){
+                filter.name = { $regex: name, $options: "i" };
+            }
+            const students: StudentDocument[] = await StudentModel.find(filter);
+            return students;
+
+        }catch(error){
+            console.log(this.handleError(error));
+            throw error;
         }
+        
 
 
-        throw new Error("Not implemented");
     }
 
     // TODO (Reto 3 - Delete): implementar.

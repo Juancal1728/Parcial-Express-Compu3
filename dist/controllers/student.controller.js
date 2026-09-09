@@ -52,32 +52,41 @@ class StudentController {
             response.json(error);
         }
     }
-    // TODO (Reto 1 - Bulk create): validar que request.body sea un arreglo y delegar en studentService.bulkCreate
     async bulkCreate(request, response) {
         try {
-            const student = await student_service_1.studentService.bulkCreate(request.body);
-            response.json(students);
+            const studentsData = request.body;
+            if (!Array.isArray(studentsData)) {
+                response.status(400).json({ message: "El body debe ser un arreglo de estudiantes" });
+                return;
+            }
+            const result = await student_service_1.studentService.bulkCreate(studentsData);
+            response.status(201).json(result);
         }
         catch (error) {
-            response.json(error);
+            response.status(500).json(error);
         }
-        response.status(501).json({ message: "Not implemented" });
     }
     // TODO (Reto 2 - Search): tomar los query params y delegar en studentService.search
     async search(request, response) {
-        response.status(501).json({ message: "Not implemented" });
+        try {
+            const students = await student_service_1.studentService.search(request.query);
+            response.json(students);
+        }
+        catch (error) {
+            response.status(500).json(error);
+        }
     }
     // TODO (Reto 3 - Delete): validar el email y delegar en studentService.deleteStudent (404/mensaje si no existe)
     async deleteStudent(request, response) {
         try {
             const email = request.params.email;
             if (typeof email !== "string") {
-                response.status(400).json();
+                response.status(400).json({ message: "Pon un email valido" });
                 return;
             }
             const student = await student_service_1.studentService.deleteStudent(email);
             if (student === null) {
-                response.status(404).json();
+                response.status(404).json({ message: `User ${email} not found` });
             }
             response.json(student);
         }
