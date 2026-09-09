@@ -14,5 +14,5 @@ exports.studentRouter.get("/search", student_controller_1.studentController.sear
 exports.studentRouter.get('/:email', student_controller_1.studentController.getByEmail);
 exports.studentRouter.put("/update/:email", student_controller_1.studentController.updateStudent);
 // TODO (Reto 3 - Delete): agregar DELETE /students/delete/:email -> studentController.deleteStudent
-exports.studentRouter.delete("/delete/:email", student_controller_1.studentController.deleteStudent);
+exports.studentRouter.delete("/delete", student_controller_1.studentController.deleteStudent);
 //# sourceMappingURL=student.route.js.map

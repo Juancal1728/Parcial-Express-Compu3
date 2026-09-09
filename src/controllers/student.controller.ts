@@ -46,7 +46,8 @@ class StudentController{
             }
             const student: StudentDocument | null = await studentService.updateStudent(email, request.body as StudentInput);
             if(student === null){
-                response.status(400).json({message: `User ${email} not found`});
+                response.status(404).json({message: `User ${email} not found`});
+                return;
             }
             response.json(student);
         }catch(error){
@@ -89,6 +90,7 @@ class StudentController{
             const student: StudentDocument | null = await studentService.deleteStudent(email);
             if(student === null){
                 response.status(404).json({message: `User ${email} not found`});
+                return;
             }
             response.json(student);
             

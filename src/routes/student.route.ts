@@ -15,4 +15,4 @@ studentRouter.get('/:email', studentController.getByEmail);
 studentRouter.put("/update/:email", studentController.updateStudent);
 
 // TODO (Reto 3 - Delete): agregar DELETE /students/delete/:email -> studentController.deleteStudent
-studentRouter.delete("/delete/:email", studentController.deleteStudent);
+studentRouter.delete("/delete", studentController.deleteStudent);
